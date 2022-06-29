@@ -4,7 +4,7 @@ import LRU from 'lru-cache'
 
 export type { LRUOptions }
 
-export interface AsyncCacheFn<R, A extends []> {
+export interface AsyncCacheFn<R, A extends any[]> {
   (...args: A): Promise<R>
   /**
    * Call the function or get the async cache.
@@ -36,7 +36,7 @@ export interface AsyncCacheFn<R, A extends []> {
   clear(): void
 }
 
-export interface AsyncCacheOptions<R, A extends [], K = string> {
+export interface AsyncCacheOptions<R, A extends any[], K = string> {
   /**
    * The mode of caching
    *
@@ -73,7 +73,7 @@ export interface AsyncCacheOptions<R, A extends [], K = string> {
   shouldCache?: (args: A) => boolean
 }
 
-export function cacheFn<R, A extends [], K = string>(
+export function cacheFn<R, A extends any[], K = string>(
   fn: (...args: A) => Promise<R>,
   options: AsyncCacheOptions<R, A, K> = {},
 ) {
