@@ -7,9 +7,13 @@ export type { LRUOptions }
 export interface AsyncCacheFn<R, A extends []> {
   (...args: A): Promise<R>
   /**
-   * Call the function of get the async cache.
+   * Call the function or get the async cache.
    */
   invoke(...args: A): Promise<R>
+  /**
+   * Call the function without cache.
+   */
+  noCache(...args: A): Promise<R>
   /**
    * Get the cache for the given arguments.
    */
@@ -38,6 +42,7 @@ export interface AsyncCacheOptions<R, A extends [], K = string> {
    *
    * - `singlteon`: calls with same arguments will only be executed ONCE, unless the cache is cleared
    * - `single-instance`: calls with same arguments will only have one instance at a time, the cache will be cleared once the promise is resolved
+   * @default 'singlteon'
    */
   mode?: 'singlteon' | 'single-instance'
 
@@ -104,6 +109,7 @@ export function cacheFn<R, A extends [], K = string>(
   wrapper.has = (...args) => cache.has(getKey(args))
   wrapper.set = (args, v) => cache.set(getKey(args), v)
   wrapper.delete = (...args) => cache.delete(getKey(args))
+  wrapper.noCache = (...args) => fn(...args)
 
   return wrapper
 }
