@@ -1,6 +1,6 @@
-# asyncache
+# async-cache-fn
 
-[![NPM version](https://img.shields.io/npm/v/asyncache?color=a1b858&label=)](https://www.npmjs.com/package/asyncache)
+[![NPM version](https://img.shields.io/npm/v/async-cache-fn?color=a1b858&label=)](https://www.npmjs.com/package/async-cache-fn)
 
 ## Sponsors
 

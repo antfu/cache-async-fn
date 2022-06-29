@@ -63,7 +63,7 @@ export interface AsyncCacheOptions<R, A extends [], K = string> {
   allowFailures?: boolean
 }
 
-export function cached<R, A extends [], K = string>(
+export function cacheFn<R, A extends [], K = string>(
   fn: (...args: A) => Promise<R>,
   options: AsyncCacheOptions<R, A, K> = {},
 ) {
