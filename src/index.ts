@@ -1,8 +1,9 @@
-import { stringify } from 'safe-stable-stringify'
+import { stringify as stableStringify } from 'safe-stable-stringify'
 import type { Options as LRUOptions } from 'lru-cache'
 import LRU from 'lru-cache'
 
 export type { LRUOptions }
+export { stableStringify }
 
 export interface AsyncCacheFn<R, A extends any[]> {
   (...args: A): Promise<R>
@@ -34,6 +35,10 @@ export interface AsyncCacheFn<R, A extends any[]> {
    * Clear all cache
    */
   clear(): void
+  /**
+   * A set of pending promises
+   */
+  pending: Set<Promise<R>>
 }
 
 export interface AsyncCacheOptions<R, A extends any[], K = string> {
@@ -80,7 +85,7 @@ export function asyncCacheFn<R, A extends any[], K = string>(
   const {
     mode = 'singlteon',
     allowFailures = false,
-    getKey = (args: A) => stringify(args) as unknown as K,
+    getKey = (args: A) => stableStringify(args) as unknown as K,
     lru: lruOptions = { max: 1000 },
     shouldCache,
   } = options
@@ -88,6 +93,8 @@ export function asyncCacheFn<R, A extends any[], K = string>(
   const cache = lruOptions
     ? new LRU<K, Promise<R>>(lruOptions)
     : new Map<K, Promise<R>>()
+
+  const pending = new Set<Promise<R>>()
 
   const wrapper = ((...args: A) => {
     const key = getKey(args)
@@ -97,19 +104,25 @@ export function asyncCacheFn<R, A extends any[], K = string>(
       return cache.get(key)!
 
     let promise = Promise.resolve(fn(...args))
-    if (useCache) {
-      if (mode === 'single-instance')
-        promise.finally(() => cache.delete(key))
+    if (!useCache)
+      return promise
 
-      if (!allowFailures) {
-        promise = promise
-          .catch((e) => {
-            cache.delete(key)
-            throw e
-          })
-      }
-      cache.set(key, promise)
+    if (!allowFailures) {
+      promise = promise
+        .catch((e) => {
+          cache.delete(key)
+          throw e
+        })
     }
+
+    promise = promise.finally(() => {
+      pending.delete(promise)
+      if (mode === 'single-instance')
+        cache.delete(key)
+    })
+
+    cache.set(key, promise)
+    pending.add(promise)
     return promise
   }) as AsyncCacheFn<R, A>
 
@@ -120,6 +133,7 @@ export function asyncCacheFn<R, A extends any[], K = string>(
   wrapper.set = (args, v) => cache.set(getKey(args), v)
   wrapper.delete = (...args) => cache.delete(getKey(args))
   wrapper.noCache = (...args) => fn(...args)
+  wrapper.pending = pending
 
   return wrapper
 }
