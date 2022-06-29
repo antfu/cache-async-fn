@@ -11,12 +11,17 @@ importers:
       bumpp: ^8.2.1
       eslint: ^8.18.0
       esno: ^0.16.3
+      lru-cache: ^7.10.2
       pnpm: ^7.2.1
       rimraf: ^3.0.2
+      safe-stable-stringify: ^2.3.1
       typescript: ^4.7.4
       unbuild: ^0.7.4
       vite: ^2.9.12
       vitest: ^0.15.1
+    dependencies:
+      lru-cache: 7.10.2
+      safe-stable-stringify: 2.3.1
     devDependencies:
       '@antfu/eslint-config': 0.25.1_b5e7v2qnwxfo6hmiq56u52mz3e
       '@antfu/ni': 0.16.2
@@ -2535,6 +2540,11 @@ packages:
       yallist: 4.0.0
     dev: true
 
+  /lru-cache/7.10.2:
+    resolution: {integrity: sha512-9zDbhgmXAUvUMPV81A705K3tVzcPiZL3Bf5/5JC/FjYJlLZ5AJCeqIRFHJqyBppiLosqF+uKB7p8/RDXylqBIw==}
+    engines: {node: '>=12'}
+    dev: false
+
   /magic-string/0.25.7:
     resolution: {integrity: sha512-4CrMT5DOHTDk4HYDlzmwu4FVCcIYI8gauveasrdCu2IKIFOJ3f0v/8MDGJCDL9oD2ppz/Av1b0Nj345H9M+XIA==}
     dependencies:
@@ -3068,6 +3078,11 @@ packages:
     dependencies:
       regexp-tree: 0.1.24
     dev: true
+
+  /safe-stable-stringify/2.3.1:
+    resolution: {integrity: sha512-kYBSfT+troD9cDA85VDnHZ1rpHC50O0g1e6WlGHVCz/g+JS+9WKLj+XwFYyR8UbrZN8ll9HUpDAAddY58MGisg==}
+    engines: {node: '>=10'}
+    dev: false
 
   /scule/0.2.1:
     resolution: {integrity: sha512-M9gnWtn3J0W+UhJOHmBxBTwv8mZCan5i1Himp60t6vvZcor0wr+IM0URKmIglsWJ7bRujNAVVN77fp+uZaWoKg==}

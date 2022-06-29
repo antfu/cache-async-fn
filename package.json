@@ -46,6 +46,10 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "lru-cache": "^7.10.2",
+    "safe-stable-stringify": "^2.3.1"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^0.25.1",
     "@antfu/ni": "^0.16.2",
