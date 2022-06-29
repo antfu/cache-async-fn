@@ -66,6 +66,11 @@ export interface AsyncCacheOptions<R, A extends [], K = string> {
    * @default false
    */
   allowFailures?: boolean
+
+  /**
+   * A custom filter to check whether a call should be cached.
+   */
+  shouldCache?: (args: A) => boolean
 }
 
 export function cacheFn<R, A extends [], K = string>(
@@ -77,6 +82,7 @@ export function cacheFn<R, A extends [], K = string>(
     allowFailures = false,
     getKey = (args: A) => stringify(args) as unknown as K,
     lru: lruOptions = { max: 1000 },
+    shouldCache,
   } = options
 
   const cache = lruOptions
@@ -85,8 +91,13 @@ export function cacheFn<R, A extends [], K = string>(
 
   const wrapper = ((...args: A) => {
     const key = getKey(args)
-    if (!cache.has(key)) {
-      let promise = Promise.resolve(fn(...args))
+    const useCache = shouldCache ? shouldCache(args) : true
+
+    if (useCache && cache.has(key))
+      return cache.get(key)!
+
+    let promise = Promise.resolve(fn(...args))
+    if (useCache) {
       if (mode === 'single-instance')
         promise.finally(() => cache.delete(key))
 
@@ -97,10 +108,9 @@ export function cacheFn<R, A extends [], K = string>(
             throw e
           })
       }
-
-      return cache.set(key, promise)
+      cache.set(key, promise)
     }
-    return cache.get(key)!
+    return promise
   }) as AsyncCacheFn<R, A>
 
   wrapper.invoke = (...args) => wrapper(...args)
