@@ -45,11 +45,11 @@ export interface AsyncCacheOptions<R, A extends any[], K = string> {
   /**
    * The mode of caching
    *
-   * - `singlteon`: calls with same arguments will only be executed ONCE, unless the cache is cleared
+   * - `singleton`: calls with same arguments will only be executed ONCE, unless the cache is cleared
    * - `single-instance`: calls with same arguments will only have one instance at a time, the cache will be cleared once the promise is resolved
-   * @default 'singlteon'
+   * @default 'singleton'
    */
-  mode?: 'singlteon' | 'single-instance'
+  mode?: 'singleton' | 'single-instance'
 
   /**
    * Custom function to get the key for caching from arguments.
@@ -83,7 +83,7 @@ export function asyncCacheFn<R, A extends any[], K = string>(
   options: AsyncCacheOptions<R, A, K> = {},
 ) {
   const {
-    mode = 'singlteon',
+    mode = 'singleton',
     allowFailures = false,
     getKey = (args: A) => stableStringify(args) as unknown as K,
     lru: lruOptions = { max: 1000 },
