@@ -73,7 +73,7 @@ export interface AsyncCacheOptions<R, A extends any[], K = string> {
   shouldCache?: (args: A) => boolean
 }
 
-export function cacheFn<R, A extends any[], K = string>(
+export function asyncCacheFn<R, A extends any[], K = string>(
   fn: (...args: A) => Promise<R>,
   options: AsyncCacheOptions<R, A, K> = {},
 ) {
