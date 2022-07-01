@@ -75,7 +75,7 @@ export interface AsyncCacheOptions<R, A extends any[], K = string> {
   /**
    * A custom filter to check whether a call should be cached.
    */
-  shouldCache?: (args: A) => boolean
+  shouldCache?: (args: A) => boolean | undefined | void
 }
 
 export function asyncCacheFn<R, A extends any[], K = string>(
@@ -98,7 +98,7 @@ export function asyncCacheFn<R, A extends any[], K = string>(
 
   const wrapper = ((...args: A) => {
     const key = getKey(args)
-    const useCache = shouldCache ? shouldCache(args) : true
+    const useCache = shouldCache?.(args) ?? true
 
     if (useCache && cache.has(key))
       return cache.get(key)!
