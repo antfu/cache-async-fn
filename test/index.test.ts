@@ -35,6 +35,7 @@ describe('should', () => {
       calls += 1
       return n * m
     }, {
+      // since the order is interchangeable, we sort it to improve the cache matching
       getKey: args => stableStringify(args.sort()),
     })
 
