@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import { asyncCacheFn, stableStringify } from '../src'
 
 describe('should', () => {
@@ -46,5 +46,36 @@ describe('should', () => {
     expect(await Promise.all([a, b])).toEqual([12, 12])
 
     expect(calls).toEqual(1)
+  })
+
+  test('cyclical update cache', async () => {
+    let time = Date.now()
+    let count = -1
+    const threshold = 100
+    const quota = 3
+    const metc = 10 // asyncCacheFn's max execution time consumption
+    const needUpdateCache = () => {
+      const newTime = Date.now()
+      const result = newTime - time > threshold
+      if (count % (quota + 1) === quota)
+        time = newTime
+      count++
+      return result
+    }
+    const sleep = () => new Promise((resolve) => {
+      setTimeout(() => resolve(true), Math.ceil(threshold / quota))
+    })
+    const useTime = asyncCacheFn(async () => {
+      await Promise.resolve()
+      return Date.now()
+    }, { needUpdateCache })
+    let newTime = await useTime()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const _ of new Array(quota)) {
+      expect(time + metc >= newTime).toBeTruthy()
+      await sleep()
+      newTime = await useTime()
+    }
+    expect(time + metc >= newTime).toBeFalsy()
   })
 })

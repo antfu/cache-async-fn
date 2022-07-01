@@ -76,6 +76,11 @@ export interface AsyncCacheOptions<R, A extends any[], K = string> {
    * A custom filter to check whether a call should be cached.
    */
   shouldCache?: (args: A) => boolean
+
+  /**
+   * When do you need to update the cache. Make it return true.
+   */
+  needUpdateCache?: () => boolean
 }
 
 export function asyncCacheFn<R, A extends any[], K = string>(
@@ -88,6 +93,7 @@ export function asyncCacheFn<R, A extends any[], K = string>(
     getKey = (args: A) => stableStringify(args) as unknown as K,
     lru: lruOptions = { max: 1000 },
     shouldCache,
+    needUpdateCache = () => false,
   } = options
 
   const cache = lruOptions
@@ -99,8 +105,9 @@ export function asyncCacheFn<R, A extends any[], K = string>(
   const wrapper = ((...args: A) => {
     const key = getKey(args)
     const useCache = shouldCache ? shouldCache(args) : true
+    const shouldUpdateCache = useCache ? needUpdateCache() : false
 
-    if (useCache && cache.has(key))
+    if (useCache && cache.has(key) && !shouldUpdateCache)
       return cache.get(key)!
 
     let promise = Promise.resolve(fn(...args))
