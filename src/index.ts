@@ -27,9 +27,8 @@ export function asyncCacheFn<R, A extends any[], K = string>(
   const wrapper = ((...args: A) => {
     const key = getKey(args)
     const useCache = shouldCache ? shouldCache(args) : true
-    const shouldUpdateCache = useCache ? needUpdateCache() : false
 
-    if (useCache && cache.has(key) && !shouldUpdateCache)
+    if (useCache && cache.has(key) && !needUpdateCache())
       return cache.get(key)!
 
     let promise = Promise.resolve(fn(...args))
